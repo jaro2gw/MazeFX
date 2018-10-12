@@ -1,0 +1,49 @@
+private void fork(Point point){
+        for (Point p : point.neighbours) {
+            if (!visited[p.x][p.y] && !pointQueue.contains(p)) {
+//                    pointQueue.add(p);
+//                    points.add(p);
+                addToList(p,points);
+                addToQueue(p,pointQueue);
+                levelArray[p.x][p.y] = level + 1;
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void BFS(Point point) {
+        for (int x = 0; x < xSize; x++)
+            for (int y = 0; y < ySize; y++) if (maze[x][y].equals(" ")) levelArray[x][y] = 0;
+//                else levelArray[x][y] = -1;
+        levelArray[point.x][point.y] = 1;
+        pointQueue = new LinkedList<>();
+        visited = new boolean[xSize][ySize];
+
+        pointQueue.add(point);
+        points.add(point);
+        while (!pointQueue.isEmpty()) {
+            point = pointQueue.remove();
+            visited[point.x][point.y] = true;
+            point.findNeighbours();
+            if (point.equals(destinyPoint)) {
+//                System.out.println(levelArray[point.x][point.y]);
+
+                findShortestPath();
+                break;
+            }
+            level = levelArray[point.x][point.y];
+            Thread th;
+
+            int neighbournSize = point.neighbours.size();
+            for (Point neighbour : point.neighbours) {
+                th = new Thread(() -> fork(neighbour));
+                th.start();
+            }
+
+            fork(point.neighbours.get(0));
+        }
+    }
